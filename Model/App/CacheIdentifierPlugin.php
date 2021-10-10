@@ -16,21 +16,8 @@ use Magento\Store\Model\StoreManager;
 class CacheIdentifierPlugin
 {
     /**
-     * @var \Magento\Framework\View\DesignExceptions
-     */
-    private $designExceptions;
-
-    /**
-     * @var \Magento\Framework\App\RequestInterface
-     */
-    private $request;
-
-    /**
-     * @var \Magento\PageCache\Model\Config
-     */
-    private $config;
-
-    /**
+     * Constructor
+     *
      * @param \Magento\Framework\View\DesignExceptions $designExceptions
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \Magento\PageCache\Model\Config $config
