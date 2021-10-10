@@ -70,7 +70,7 @@ class RenderTest extends TestCase
     protected $layoutCacheKeyMock;
 
     /**
-     * @inheritDoc
+     * Set up before test
      */
     protected function setUp(): void
     {
@@ -124,10 +124,7 @@ class RenderTest extends TestCase
         );
     }
 
-    /**
-    * @return void
-    */
-    public function testExecuteNotAjax(): void
+    public function testExecuteNotAjax()
     {
         $this->requestMock->expects($this->once())->method('isAjax')->willReturn(false);
         $this->requestMock->expects($this->once())->method('setActionName')->willReturn('noroute');
@@ -138,26 +135,25 @@ class RenderTest extends TestCase
     }
 
     /**
-     * Test no params: blocks, handles.
-     *
-     * @return void
+     * Test no params: blocks, handles
      */
-    public function testExecuteNoParams(): void
+    public function testExecuteNoParams()
     {
         $this->requestMock->expects($this->once())->method('isAjax')->willReturn(true);
-        $this->requestMock
+        $this->requestMock->expects($this->at(6))
             ->method('getParam')
-            ->withConsecutive([], [], [], [], [], [], ['blocks', ''], ['handles', ''])
-            ->willReturnOnConsecutiveCalls(null, null, null, null, null, null, '', '');
+            ->with('blocks', '')
+            ->willReturn('');
+        $this->requestMock->expects($this->at(7))
+            ->method('getParam')
+            ->with('handles', '')
+            ->willReturn('');
         $this->layoutCacheKeyMock->expects($this->never())
             ->method('addCacheKeys');
         $this->action->execute();
     }
 
-    /**
-    * @return void
-    */
-    public function testExecute(): void
+    public function testExecute()
     {
         $blocks = ['block1', 'block2'];
         $handles = ['handle1', 'handle2'];
@@ -178,40 +174,45 @@ class RenderTest extends TestCase
 
         $this->requestMock->expects($this->once())->method('isAjax')->willReturn(true);
 
-        $this->requestMock
+        $this->requestMock->expects($this->at(1))
             ->method('getRouteName')
             ->willReturn('magento_pagecache');
-        $this->requestMock
-            ->method('getParam')
-            ->withConsecutive(
-                ['originalRequest'],
-                ['blocks', ''],
-                ['handles', '']
-            )
-            ->willReturnOnConsecutiveCalls(
-                $originalRequest,
-                json_encode($blocks),
-                base64_encode(json_encode($handles))
-            );
-        $this->requestMock
-            ->method('getRequestUri')
-            ->willReturn('uri');
-        $this->requestMock
-            ->method('getActionName')
-            ->willReturn('render');
-        $this->requestMock
+        $this->requestMock->expects($this->at(2))
             ->method('getControllerName')
             ->willReturn('block');
+        $this->requestMock->expects($this->at(3))
+            ->method('getActionName')
+            ->willReturn('render');
+        $this->requestMock->expects($this->at(4))
+            ->method('getRequestUri')
+            ->willReturn('uri');
+        $this->requestMock->expects($this->at(5))
+            ->method('getParam')
+            ->with('originalRequest')
+            ->willReturn($originalRequest);
+
+        $this->requestMock->expects($this->at(10))
+            ->method('getParam')
+            ->with('blocks', '')
+            ->willReturn(json_encode($blocks));
+        $this->requestMock->expects($this->at(11))
+            ->method('getParam')
+            ->with('handles', '')
+            ->willReturn(base64_encode(json_encode($handles)));
         $this->viewMock->expects($this->once())->method('loadLayout')->with($handles);
         $this->viewMock->expects($this->any())->method('getLayout')->willReturn($this->layoutMock);
         $this->layoutMock->expects($this->never())
             ->method('getUpdate');
         $this->layoutCacheKeyMock->expects($this->atLeastOnce())
             ->method('addCacheKeys');
-        $this->layoutMock
+        $this->layoutMock->expects($this->at(0))
             ->method('getBlock')
-            ->withConsecutive([$blocks[0]], [$blocks[1]])
-            ->willReturnOnConsecutiveCalls($blockInstance1, $blockInstance2);
+            ->with($blocks[0])
+            ->willReturn($blockInstance1);
+        $this->layoutMock->expects($this->at(1))
+            ->method('getBlock')
+            ->with($blocks[1])
+            ->willReturn($blockInstance2);
 
         $this->translateInline->expects($this->once())
             ->method('processResponseBody')

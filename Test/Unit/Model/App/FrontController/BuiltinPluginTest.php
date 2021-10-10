@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace Magento\PageCache\Test\Unit\Model\App\FrontController;
 
-use Closure;
 use Laminas\Http\Header\GenericHeader;
 use Magento\Framework\App\FrontControllerInterface;
 use Magento\Framework\App\PageCache\Kernel;
@@ -59,7 +58,7 @@ class BuiltinPluginTest extends TestCase
     protected $frontControllerMock;
 
     /**
-     * @var Closure
+     * @var \Closure
      */
     protected $closure;
 
@@ -69,7 +68,7 @@ class BuiltinPluginTest extends TestCase
     protected $requestMock;
 
     /**
-     * @inheritdoc
+     * SetUp
      */
     protected function setUp(): void
     {
@@ -93,10 +92,9 @@ class BuiltinPluginTest extends TestCase
     }
 
     /**
-     * @return void
      * @dataProvider dataProvider
      */
-    public function testAroundDispatchProcessIfCacheMissed($state): void
+    public function testAroundDispatchProcessIfCacheMissed($state)
     {
         $header = GenericHeader::fromString('Cache-Control: no-cache');
         $this->configMock
@@ -117,12 +115,12 @@ class BuiltinPluginTest extends TestCase
             ->method('getMode')
             ->willReturn($state);
         if ($state == State::MODE_DEVELOPER) {
-            $this->responseMock
+            $this->responseMock->expects($this->at(1))
                 ->method('setHeader')
-                ->withConsecutive(
-                    ['X-Magento-Cache-Control'],
-                    ['X-Magento-Cache-Debug', 'MISS', true]
-                );
+                ->with('X-Magento-Cache-Control');
+            $this->responseMock->expects($this->at(2))
+                ->method('setHeader')
+                ->with('X-Magento-Cache-Debug', 'MISS', true);
         } else {
             $this->responseMock->expects($this->never())
                 ->method('setHeader');
@@ -143,10 +141,9 @@ class BuiltinPluginTest extends TestCase
     }
 
     /**
-     * @return void
      * @dataProvider dataProvider
      */
-    public function testAroundDispatchReturnsResultInterfaceProcessIfCacheMissed($state): void
+    public function testAroundDispatchReturnsResultInterfaceProcessIfCacheMissed($state)
     {
         $this->configMock
             ->expects($this->once())
@@ -179,10 +176,9 @@ class BuiltinPluginTest extends TestCase
     }
 
     /**
-     * @return void
      * @dataProvider dataProvider
      */
-    public function testAroundDispatchReturnsCache($state): void
+    public function testAroundDispatchReturnsCache($state)
     {
         $this->configMock
             ->expects($this->once())
@@ -217,10 +213,9 @@ class BuiltinPluginTest extends TestCase
     }
 
     /**
-     * @return void
      * @dataProvider dataProvider
      */
-    public function testAroundDispatchDisabled($state): void
+    public function testAroundDispatchDisabled($state)
     {
         $this->configMock
             ->expects($this->any())
@@ -246,11 +241,11 @@ class BuiltinPluginTest extends TestCase
     /**
      * @return array
      */
-    public function dataProvider(): array
+    public function dataProvider()
     {
         return [
             'developer_mode' => [State::MODE_DEVELOPER],
-            'production' => [State::MODE_PRODUCTION]
+            'production' => [State::MODE_PRODUCTION],
         ];
     }
 }
