@@ -1,5 +1,5 @@
 {
-    "name": "test-magenx/module-page-cache",
+    "name": "magenxcommerce/module-page-cache",
     "description": "N/A",
     "config": {
         "sort-packages": true
